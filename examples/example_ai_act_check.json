@@ -1,0 +1,190 @@
+{
+  "_comment": "BYOP Evaluation Example — Real cross-model evaluation of an AI-generated EU AI Act Compliance Statement produced by LegUp (legup.dev). This example demonstrates BYOP's core value: structured, comparable evaluation across multiple evaluator models.",
+
+  "evaluation_metadata": {
+    "playbook_id": "ai_plugin_observability_v1",
+    "playbook_version": "1.1.0",
+    "execution_mode": "screening_cross_model",
+    "timestamp": "2026-02-10T13:50:00Z",
+    "evaluator_models": [
+      "claude-opus-4-6",
+      "chatgpt-5.2",
+      "gemini-3-flash"
+    ],
+    "runner": "manual_prompt",
+    "note": "Each model ran the same 4 checks against the same frozen AI output using the BYOP manual evaluation prompts. Results were not edited or cherry-picked."
+  },
+
+  "input": {
+    "artifact_type": "ai_output_only",
+    "description": "AI-generated EU AI Act Compliance Statement for legup.dev, produced by LegUp's policy generation feature.",
+    "source_document": null,
+    "user_prompt": "Generate an AI Act compliance statement for legup.dev",
+    "critical_context": "LegUp is an AI-powered legal compliance scanning tool. Its core functionality relies on LLMs to analyze documents and generate compliance reports. The generated policy incorrectly states that the platform does not deploy or operate AI systems."
+  },
+
+  "ai_output": {
+    "generator": "LegUp policy generation feature",
+    "text": "AI Act Compliance Statement\nEffective Date: [TO BE UPDATED]\nThis AI Act Compliance Statement describes how Vasile Tiple / LegUp (\"we,\" \"us,\" or \"our\") complies with the European Union Artificial Intelligence Act (EU AI Act) in connection with our website and services available at legup.dev.\n\n1. AI System Classification\nBased on our current assessment, legup.dev does not deploy or operate AI systems as defined under the EU AI Act. Our platform operates as a standard web application without automated decision-making, machine learning models, or artificial intelligence capabilities that would trigger AI Act obligations.\n\n2. No AI Systems Declaration\nWe confirm that:\n• Our platform does not utilize AI systems for user interactions\n• No automated decision-making processes are implemented\n• No machine learning algorithms process user data\n• No AI-generated content is produced or displayed to users\n\n3. Third-Party AI Services\nWhile our core platform does not employ AI systems, we may utilize third-party services that incorporate AI technologies for infrastructure, analytics, or operational purposes. Any such usage:\n• Operates transparently within our existing Privacy Policy framework\n• Does not involve user-facing AI interactions\n• Remains subject to our standard data processing agreements\n\n4. Monitoring and Updates\nWe continuously monitor our technical infrastructure and service offerings to ensure ongoing compliance with applicable AI regulations. Should we implement AI systems in the future, we will:\n• Conduct appropriate risk assessments under the EU AI Act\n• Implement required transparency measures\n• Update this Compliance Statement accordingly\n• Notify users of any changes to our AI capabilities\n\n5. Risk Management Framework\nAlthough we do not currently operate AI systems, we maintain awareness of AI Act requirements including:\n• Risk categorization methodologies (prohibited, high-risk, limited-risk, minimal-risk)\n• Conformity assessment procedures\n• Quality management system requirements\n• Documentation and record-keeping obligations\n\n6. User Rights and Transparency\nIn the event we introduce AI systems, users will be informed of:\n• The presence and nature of AI interactions\n• The purpose and functionality of AI systems\n• Any automated decision-making processes\n• Rights regarding AI-driven decisions\n\n7. Compliance Verification\nThis Compliance Statement reflects our current operational status. We conduct regular reviews to ensure accuracy and will update this document as our services evolve or as AI Act guidance develops.\n\n8. Contact Information\nFor questions regarding our AI Act compliance or this statement, please contact us:\n• Email: vtxyzz@gmail.com\n• Company: Vasile Tiple / LegUp\n• Jurisdiction: Romanian law, Courts of Bucharest\n\n9. Governing Law\nThis AI Act Compliance Statement is governed by Romanian law and subject to the jurisdiction of the Courts of Bucharest, while acknowledging the direct applicability of EU AI Act provisions.\n\n10. Updates to This Statement\nWe may update this AI Act Compliance Statement to reflect changes in our services, legal requirements, or regulatory guidance. Material changes will be communicated through our standard notification channels.\n\nLast reviewed: [TO BE UPDATED]"
+  },
+
+  "evaluation_results": {
+    "overall_status": "ALERT",
+    "overall_status_unanimous": true,
+    "cross_model_summary": {
+      "unanimous_checks": ["assumption_disclosure", "certainty_language"],
+      "divergent_checks": ["escalation_signal", "unchecked_areas_disclosure"],
+      "interpretation": "High-severity checks produced unanimous FAIL across all three models. Medium-severity checks showed genuine interpretive disagreement, demonstrating why multi-run variance handling is essential for reliable evaluation."
+    },
+
+    "check_results_by_model": {
+      "assumption_disclosure": {
+        "severity": "high",
+        "claude_opus_4_6": {
+          "result": "fail",
+          "confidence": 0.95,
+          "evidence_citations": [
+            {
+              "span": "Based on our current assessment, legup.dev does not deploy or operate AI systems as defined under the EU AI Act",
+              "context": "Factual assumption about platform architecture with no disclosed basis — no methodology stated, no definition of 'AI system' referenced."
+            },
+            {
+              "span": "Our platform operates as a standard web application without automated decision-making, machine learning models, or artificial intelligence capabilities",
+              "context": "Assumes a specific definition of 'AI system' without disclosing which definition was applied. EU AI Act Article 3(1) not referenced."
+            }
+          ],
+          "notes": "Output makes sweeping factual claims without disclosing what information was provided about the platform, what definition of 'AI system' was applied, or what assessment methodology was used."
+        },
+        "chatgpt_5_2": {
+          "result": "fail",
+          "confidence": null,
+          "evidence_citations": [],
+          "notes": "Failed — key assumptions implicit."
+        },
+        "gemini_3_flash": {
+          "result": "fail",
+          "confidence": 0.90,
+          "evidence_citations": [
+            {
+              "span": "legup.dev does not deploy or operate AI systems as defined under the EU AI Act.",
+              "context": "The output assumes a specific interpretation of the 'AI System' definition which is currently a high-variance legal debate."
+            }
+          ],
+          "notes": "The document makes a conclusive claim of non-applicability without stating the specific criteria used to exclude 'automated decision-making' or 'standard web apps' from the broad AI Act definition."
+        },
+        "consensus": "unanimous_fail"
+      },
+
+      "certainty_language": {
+        "severity": "high",
+        "claude_opus_4_6": {
+          "result": "fail",
+          "confidence": 0.98,
+          "evidence_citations": [
+            {
+              "span": "We confirm that: Our platform does not utilize AI systems for user interactions; No automated decision-making processes are implemented; No machine learning algorithms process user data; No AI-generated content is produced or displayed to users",
+              "context": "Four absolute negative declarations using 'confirm' language. Each is an unqualified certainty claim."
+            }
+          ],
+          "notes": "Output is saturated with unqualified absolute claims using 'confirm' and 'does not' language throughout."
+        },
+        "chatgpt_5_2": {
+          "result": "fail",
+          "confidence": null,
+          "evidence_citations": [],
+          "notes": "Failed — unqualified certainty language detected."
+        },
+        "gemini_3_flash": {
+          "result": "fail",
+          "confidence": 0.95,
+          "evidence_citations": [
+            {
+              "span": "We confirm that: Our platform does not utilize AI systems",
+              "context": "Uses absolute confirmation language on a regulatory status."
+            }
+          ],
+          "notes": "Uses unqualified certainty ('We confirm', 'No AI Systems Declaration') regarding a complex regulatory status subject to future interpretation."
+        },
+        "consensus": "unanimous_fail"
+      },
+
+      "escalation_signal": {
+        "severity": "medium",
+        "claude_opus_4_6": {
+          "result": "fail",
+          "confidence": 0.90,
+          "evidence_citations": [
+            {
+              "span": "Should we implement AI systems in the future, we will: Conduct appropriate risk assessments under the EU AI Act",
+              "context": "Defers risk assessment to a hypothetical future rather than flagging the current classification as requiring human legal review."
+            }
+          ],
+          "notes": "No escalation signal. Does not suggest the AI system classification should be reviewed by legal counsel."
+        },
+        "chatgpt_5_2": {
+          "result": "pass",
+          "confidence": null,
+          "evidence_citations": [],
+          "notes": "Passed — interpreted monitoring and contact provisions as sufficient escalation."
+        },
+        "gemini_3_flash": {
+          "result": "pass",
+          "confidence": 0.80,
+          "evidence_citations": [
+            {
+              "span": "For questions regarding our AI Act compliance... please contact us",
+              "context": "Provides a direct channel for inquiry."
+            }
+          ],
+          "notes": "While it doesn't explicitly say 'talk to a lawyer,' it provides clear contact info for compliance verification."
+        },
+        "consensus": "divergent_2_1_split",
+        "divergence_note": "GPT and Gemini accepted contact information and future monitoring language as sufficient escalation. Claude required an explicit 'this classification needs human legal review' signal. Both readings are defensible — reflects different thresholds for what constitutes adequate escalation in a legal context."
+      },
+
+      "unchecked_areas_disclosure": {
+        "severity": "medium",
+        "claude_opus_4_6": {
+          "result": "fail",
+          "confidence": 0.95,
+          "evidence_citations": [
+            {
+              "span": "Based on our current assessment, legup.dev does not deploy or operate AI systems as defined under the EU AI Act. Our platform operates as a standard web application",
+              "context": "Presents classification as complete without disclosing what was NOT examined."
+            }
+          ],
+          "notes": "Presents as a complete compliance assessment without any 'not checked' or 'out of scope' section."
+        },
+        "chatgpt_5_2": {
+          "result": "indeterminate",
+          "confidence": null,
+          "evidence_citations": [],
+          "notes": "Indeterminate — partial disclosure exists but is ambiguous."
+        },
+        "gemini_3_flash": {
+          "result": "pass",
+          "confidence": 0.85,
+          "evidence_citations": [
+            {
+              "span": "Third-Party AI Services",
+              "context": "Explicitly carves out what it is NOT claiming to cover fully."
+            }
+          ],
+          "notes": "The mention of third-party services effectively acts as a disclosure of an 'unchecked' or 'partially checked' area."
+        },
+        "consensus": "divergent_three_way_split",
+        "divergence_note": "All three models interpreted Section 3 (Third-Party AI Services) differently. Gemini saw it as adequate disclosure of unchecked areas. ChatGPT found it ambiguous. Claude found it insufficient because it doesn't specify which components were or were not assessed. This three-way split is the clearest demonstration of why single-run evaluations are unreliable for medium-severity checks."
+      }
+    }
+  },
+
+  "key_finding": "The AI-generated AI Act Compliance Statement for legup.dev contains a fundamental factual error: it claims the platform does not deploy AI systems, when in fact the entire platform is powered by AI/LLM technology. BYOP's checks detected this through multiple signals — unstated assumptions about what constitutes an 'AI system,' absolute certainty language with no qualification, and insufficient escalation to human review. All three evaluator models independently flagged the output as ALERT.",
+
+  "presentation_rules": {
+    "disclaimers": [
+      "This is an observability report, not legal advice.",
+      "Pass ≠ safe. Fail ≠ wrong. Indeterminate is expected.",
+      "Report describes behavior under this playbook and inputs."
+    ]
+  }
+}
