@@ -1,0 +1,198 @@
+{
+  "spec": "BYOP",
+  "version": "0.1",
+  "status": "draft_experimental",
+  "tagline": "Playbook = test. AI output = thing under test.",
+  "problem_statement": "Users cannot reliably tell when AI legal outputs degrade over time due to silent model switching, prompt changes, routing changes, or stochastic variation. BYOP standardizes how to evaluate AI outputs for reliability and drift using external, versioned playbooks and auditable logs.",
+  "core_definition": {
+    "playbook": "A versioned, external set of evaluation checks (tests) applied to an AI output to measure reliability signals (assumptions, certainty, omissions, variance).",
+    "ai_output": "The generated text (and optionally tool traces) produced by a model/plugin/agent, treated as a frozen artifact to be evaluated.",
+    "runner": "Any implementation that executes a playbook against an AI output and produces a BYOP report + logs."
+  },
+  "non_goals": [
+    "certify legal compliance",
+    "guarantee legal correctness",
+    "replace human legal judgment",
+    "provide legal advice",
+    "bind regulators or courts",
+    "prove with certainty that a specific vendor switched models (BYOP detects behavioral drift; attribution may require vendor transparency)"
+  ],
+  "design_principles": [
+    "observability_over_correctness",
+    "externalized_standards",
+    "variance_is_a_feature_not_a_bug",
+    "unknown_and_indeterminate_are_first_class",
+    "audit_first_and_replayable",
+    "results_describe_behavior_not_legality"
+  ],
+  "conceptual_flow": {
+    "producer_step": "INPUT -> MODEL/PLUGIN/AGENT -> AI_OUTPUT (frozen)",
+    "evaluator_step": "AI_OUTPUT (frozen) -> BYOP_PLAYBOOK (tests) -> BYOP_REPORT + AUDIT_LOG",
+    "primary_use_case": "Detect regressions/drift and overconfidence patterns across time, models, or vendor-side changes."
+  },
+  "required_capabilities": {
+    "playbook_versioning": true,
+    "replayability": true,
+    "variance_reporting": true,
+    "indeterminate_state": true,
+    "evidence_citations": true,
+    "integrity_hashing": true
+  },
+  "playbook_schema": {
+    "metadata": {
+      "required_fields": [
+        "id",
+        "version",
+        "author",
+        "created_at",
+        "jurisdiction",
+        "intended_use"
+      ]
+    },
+    "input_contract": {
+      "required_fields": [
+        "artifact_type",
+        "required_inputs",
+        "optional_inputs",
+        "normalization_rules"
+      ],
+      "artifact_types": [
+        "ai_output_only",
+        "ai_output_plus_source_doc",
+        "ai_output_plus_tool_trace"
+      ]
+    },
+    "assumptions": {
+      "required": true,
+      "must_be_explicit": true
+    },
+    "risk_posture": {
+      "required": true,
+      "required_fields": [
+        "tolerance",
+        "primary_risks"
+      ]
+    },
+    "checks": {
+      "required": true,
+      "check_object_required_fields": [
+        "id",
+        "severity",
+        "question",
+        "detection_method",
+        "result_states",
+        "evidence_requirements"
+      ],
+      "result_states_allowed": [
+        "pass",
+        "fail",
+        "indeterminate"
+      ],
+      "detection_method_types": [
+        "deterministic",
+        "pattern",
+        "semantic",
+        "hybrid"
+      ]
+    },
+    "variance_handling": {
+      "required_fields": [
+        "min_runs",
+        "aggregation",
+        "thresholds"
+      ],
+      "min_runs_minimum": 3,
+      "aggregation_allowed": [
+        "majority_vote",
+        "consensus_required",
+        "report_all_runs"
+      ]
+    },
+    "output_contract": {
+      "required_fields": [
+        "summary",
+        "check_results",
+        "assumptions_extracted",
+        "uncertainty",
+        "unchecked_areas",
+        "variance_summary",
+        "limitations",
+        "integrity"
+      ]
+    },
+    "logging": {
+      "required_fields": [
+        "playbook_id",
+        "playbook_version",
+        "playbook_logic_hash",
+        "runner_name",
+        "runner_version",
+        "timestamp",
+        "model_fingerprint",
+        "inputs_fingerprint",
+        "raw_runs",
+        "byop_report"
+      ]
+    }
+  },
+  "model_fingerprint": {
+    "purpose": "Support drift detection even when exact vendor model version is undisclosed.",
+    "fields": [
+      "declared_model_name",
+      "declared_model_version",
+      "provider",
+      "routing_or_mode",
+      "temperature",
+      "system_prompt_id",
+      "other_runtime_metadata"
+    ],
+    "notes": "If unavailable, fields may be null; runner must preserve 'unknown' explicitly."
+  },
+  "integrity_and_tamper_resistance": {
+    "playbook_logic_hash": "sha256 over canonicalized playbook JSON (excluding volatile fields like timestamps)",
+    "inputs_fingerprint": "sha256 over canonicalized evaluation inputs",
+    "runner_signature_optional": true,
+    "canonicalization": "RFC 8785 (JSON Canonicalization Scheme) preferred; deterministic sorted-keys JSON.stringify acceptable for MVP implementations"
+  },
+  "presentation_rules": {
+    "must_display": [
+      "This is an observability report, not legal advice.",
+      "Pass ≠ safe. Fail ≠ wrong. Indeterminate is expected.",
+      "Report describes behavior under this playbook and inputs."
+    ],
+    "forbidden_external_claims": [
+      "certified",
+      "compliant",
+      "legally safe",
+      "regulator approved"
+    ]
+  },
+  "execution_modes": [
+    {
+      "mode": "full",
+      "variance_enabled": true,
+      "min_runs": 3,
+      "label": "Auditable (variance-aware)"
+    },
+    {
+      "mode": "screening",
+      "variance_enabled": false,
+      "min_runs": 1,
+      "label": "Non-auditable quick check (not comparable over time)"
+    }
+  ],
+  "consistency_score_computation": {
+    "method": "Per check: 1.0 if all runs agree on result state, 0.5 if majority agrees, 0.0 if all differ. Overall: severity-weighted average (high=2, medium=1).",
+    "thresholds": {
+      "ok": 0.85,
+      "warn": 0.7,
+      "below_warn": "Report as unstable — results not reliable for decision-making"
+    }
+  },
+  "overall_status_aggregation": {
+    "ALERT": "Any high-severity check fails in majority of runs",
+    "REVIEW": "Any high-severity check is indeterminate in majority of runs, OR multiple medium-severity fails",
+    "OBSERVE": "Only medium-severity issues detected",
+    "STABLE": "All checks pass with consistency above 0.85 threshold"
+  }
+}
