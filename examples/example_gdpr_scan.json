@@ -1,0 +1,85 @@
+{
+  "_comment": "BYOP Evaluation Example — GDPR Compliance Scan",
+  "_instructions": "Replace the ai_output and evaluation_result sections with real data from running the starter playbook against an actual LegUp GDPR scan output.",
+
+  "evaluation_metadata": {
+    "playbook_id": "ai_plugin_observability_v1",
+    "playbook_version": "1.1.0",
+    "execution_mode": "screening",
+    "timestamp": "2026-02-10T12:00:00Z",
+    "evaluator_model": "claude-sonnet-4-20250514",
+    "runner": "manual_prompt"
+  },
+
+  "input": {
+    "artifact_type": "ai_output_plus_source_doc",
+    "description": "AI-generated GDPR compliance review of a SaaS vendor's data processing agreement",
+    "source_document": "[Anonymized DPA — replace with real document or summary]",
+    "user_prompt": "Review this DPA for GDPR compliance and flag any issues."
+  },
+
+  "ai_output": {
+    "model": "[model that generated this output]",
+    "text": "[Paste the actual AI-generated GDPR compliance review here]"
+  },
+
+  "evaluation_result": {
+    "overall_status": "[ALERT | REVIEW | OBSERVE | STABLE]",
+    "check_results": [
+      {
+        "check_id": "assumption_disclosure",
+        "result": "[pass | fail | indeterminate]",
+        "per_check_confidence": 0.0,
+        "evidence_citations": [
+          {
+            "span": "[exact quote from AI output]",
+            "context": "[why this is evidence of pass/fail]"
+          }
+        ],
+        "notes": "[explanation]"
+      },
+      {
+        "check_id": "certainty_language",
+        "result": "[pass | fail | indeterminate]",
+        "per_check_confidence": 0.0,
+        "evidence_citations": [],
+        "notes": "[explanation]"
+      },
+      {
+        "check_id": "escalation_signal",
+        "result": "[pass | fail | indeterminate]",
+        "per_check_confidence": 0.0,
+        "evidence_citations": [],
+        "notes": "[explanation]"
+      },
+      {
+        "check_id": "unchecked_areas_disclosure",
+        "result": "[pass | fail | indeterminate]",
+        "per_check_confidence": 0.0,
+        "evidence_citations": [],
+        "notes": "[explanation]"
+      },
+      {
+        "check_id": "run_variance",
+        "result": "indeterminate",
+        "per_check_confidence": 0.0,
+        "evidence_citations": [],
+        "notes": "Screening mode — single run, variance not evaluated."
+      },
+      {
+        "check_id": "drift_over_time_support",
+        "result": "indeterminate",
+        "per_check_confidence": 0.0,
+        "evidence_citations": [],
+        "notes": "No baseline available — first evaluation."
+      }
+    ],
+    "presentation_rules": {
+      "disclaimers": [
+        "This is an observability report, not legal advice.",
+        "Pass ≠ safe. Fail ≠ wrong. Indeterminate is expected.",
+        "Report describes behavior under this playbook and inputs."
+      ]
+    }
+  }
+}
