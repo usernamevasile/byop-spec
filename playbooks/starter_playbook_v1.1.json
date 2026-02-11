@@ -1,0 +1,176 @@
+{
+  "metadata": {
+    "id": "ai_plugin_observability_v1",
+    "version": "1.1.0",
+    "author": "BYOP",
+    "created_at": "2026-02-07",
+    "jurisdiction": "neutral",
+    "intended_use": [
+      "ai_plugin_observability",
+      "drift_detection_support"
+    ]
+  },
+  "input_contract": {
+    "artifact_type": "ai_output_plus_source_doc",
+    "required_inputs": [
+      "ai_output_text"
+    ],
+    "optional_inputs": [
+      "source_document_text",
+      "user_prompt",
+      "system_instructions",
+      "tool_trace"
+    ],
+    "normalization_rules": [
+      "strip_whitespace_only_differences",
+      "preserve_quotes_and_clause_numbers",
+      "preserve_all_model_disclaimers_verbatim"
+    ]
+  },
+  "assumptions": [
+    "The AI output may sound authoritative while being incomplete or wrong.",
+    "The AI may rely on unstated assumptions (jurisdiction, facts, roles).",
+    "The AI system may change behavior over time due to provider-side changes.",
+    "Repeated runs may differ; variance must be reported."
+  ],
+  "risk_posture": {
+    "tolerance": "very_low",
+    "primary_risks": [
+      "false_legal_certainty",
+      "unstated_assumptions",
+      "silent_omission",
+      "missing_escalation",
+      "behavioral_regression_over_time"
+    ]
+  },
+  "variance_handling": {
+    "min_runs": 3,
+    "aggregation": "report_all_runs",
+    "thresholds": {
+      "consistency_score_min_ok": 0.85,
+      "consistency_score_warn": 0.7
+    }
+  },
+  "checks": [
+    {
+      "id": "assumption_disclosure",
+      "severity": "high",
+      "question": "Does the AI output explicitly state key assumptions required for its conclusions (jurisdiction, missing facts, role/positioning)?",
+      "detection_method": {
+        "type": "semantic",
+        "instructions": "Extract assumptions the output relies on. Mark PASS only if key assumptions are explicitly stated; FAIL if key assumptions are implicit; INDETERMINATE if unclear."
+      },
+      "result_states": ["pass", "fail", "indeterminate"],
+      "evidence_requirements": {
+        "require_citations": true,
+        "citation_type": "output_spans",
+        "min_citations_per_fail": 1
+      }
+    },
+    {
+      "id": "certainty_language",
+      "severity": "high",
+      "question": "Does the AI output use unjustified certainty ('compliant', 'legal', 'allowed') without qualifiers, scope limits, or escalation guidance?",
+      "detection_method": {
+        "type": "hybrid",
+        "pattern_hints": ["compliant", "legal", "illegal", "guarantee", "safe", "always", "never"],
+        "instructions": "Flag absolute legal claims. Determine if qualifiers and scope limitations are present nearby. PASS if certainty is appropriately qualified; FAIL if certainty is unqualified; INDETERMINATE if context is ambiguous."
+      },
+      "result_states": ["pass", "fail", "indeterminate"],
+      "evidence_requirements": {
+        "require_citations": true,
+        "citation_type": "output_spans",
+        "min_citations_per_fail": 1
+      }
+    },
+    {
+      "id": "escalation_signal",
+      "severity": "medium",
+      "question": "Does the AI output clearly signal when human legal review is required for high-risk or uncertain items?",
+      "detection_method": {
+        "type": "semantic",
+        "instructions": "Check whether the output includes explicit escalation triggers (e.g., 'requires counsel review', 'depends on jurisdiction/facts'). PASS if present and meaningful; FAIL if absent in presence of uncertainty; INDETERMINATE if not applicable."
+      },
+      "result_states": ["pass", "fail", "indeterminate"],
+      "evidence_requirements": {
+        "require_citations": true,
+        "citation_type": "output_spans",
+        "min_citations_per_fail": 1
+      }
+    },
+    {
+      "id": "unchecked_areas_disclosure",
+      "severity": "medium",
+      "question": "Does the AI output state what it did NOT check (or what information was missing) in a concrete way?",
+      "detection_method": {
+        "type": "deterministic",
+        "instructions": "PASS if output includes an explicit 'not checked / missing info' section or statement; FAIL if it presents as complete without acknowledging omissions; INDETERMINATE if output is extremely short or clearly partial."
+      },
+      "result_states": ["pass", "fail", "indeterminate"],
+      "evidence_requirements": {
+        "require_citations": true,
+        "citation_type": "output_spans",
+        "min_citations_per_fail": 1
+      }
+    },
+    {
+      "id": "run_variance",
+      "severity": "medium",
+      "question": "Across repeated runs with identical inputs, do findings or conclusions materially diverge?",
+      "detection_method": {
+        "type": "semantic",
+        "instructions": "Compare run outputs. Identify materially divergent findings (new/removed high severity issues, flipped conclusions). PASS if stable above threshold; FAIL if below warn threshold; INDETERMINATE if runs cannot be compared."
+      },
+      "result_states": ["pass", "fail", "indeterminate"],
+      "evidence_requirements": {
+        "require_citations": false
+      }
+    },
+    {
+      "id": "drift_over_time_support",
+      "severity": "medium",
+      "question": "Compared to a stored baseline report (prior run), does the current report show degradation signals (lower consistency, more unjustified certainty, fewer disclosed assumptions)?",
+      "detection_method": {
+        "type": "hybrid",
+        "instructions": "If a baseline is provided, compute deltas in consistency score and key check outcomes. PASS if no material degradation; FAIL if degradation exceeds thresholds; INDETERMINATE if no baseline provided."
+      },
+      "result_states": ["pass", "fail", "indeterminate"],
+      "evidence_requirements": {
+        "require_citations": false
+      }
+    }
+  ],
+  "output_contract": {
+    "summary": {
+      "required_fields": [
+        "overall_status",
+        "key_risks",
+        "recommended_next_steps"
+      ]
+    },
+    "check_results": {
+      "required_fields": [
+        "check_id",
+        "result",
+        "per_check_confidence",
+        "per_check_consistency",
+        "evidence_citations",
+        "notes"
+      ]
+    },
+    "variance_summary": {
+      "required_fields": [
+        "num_runs",
+        "consistency_score",
+        "divergent_findings"
+      ]
+    },
+    "integrity": {
+      "required_fields": [
+        "playbook_logic_hash",
+        "inputs_fingerprint",
+        "runner_fingerprint"
+      ]
+    }
+  }
+}
